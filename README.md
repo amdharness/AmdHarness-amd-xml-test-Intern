@@ -14,14 +14,14 @@ returns the XMLDocument defined by MID. Handy to load static resources like XSLT
 On Apr 2015 
 
 Browser | ver
-===     | ===
+ :----- | ---
 Chrome  | current
 FF      | current
 IE      | current
 
 AMD loader 
 
-===       | ===
+ :---       | ---
 RequireJS | current ?
 Dojo Toolkit | 1.6+
 
