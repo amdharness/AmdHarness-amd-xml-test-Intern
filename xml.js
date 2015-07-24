@@ -19,12 +19,14 @@
 	var XHTML	= "http://www.w3.org/1999/xhtml"
 	,	AFNS	= "http://apifusion.com/ui/vc/1.0";
 
-	return	{	load: function load(name, req, onLoad, config) // AMD plugin API
-		{
-			getXml( req.toUrl( name ) , onLoad );
-		}
+	var mod =
+	{	load: function load(name, req, onLoad, config) // AMD plugin API
+			{
+				getXml( req.toUrl( name ) ).then( onLoad, onLoad );
+			}
 	,	getXml		: getXml
-	,	transform	: transform
+	,	createXml	: createXml
+	,	transform	: transform 	// ( xml, xsl, el )
 	,	XPath_node	: function XPath_node( xPath, node )
 		{
 			var d = node.ownerDocument || node
@@ -40,9 +42,11 @@
 		}
 	,	XPath_nl : XPath_nl
 	,	$ : XPath_nl
-	,	createElement : createElement
-	,	cleanElement : cleanElement
+	,	o2xml			: object2Xml // ( o, tag, node )
+	,	createElement 	: createElement
+	,	cleanElement 	: cleanElement
 	};
+	return mod;
 		function
 	XPath_nl( /* string | Array */ xPath, node )
 	{
@@ -135,16 +139,17 @@
 	getXml( url )
 	{
 		// todo http headers and other options
-		var xhr = window 
+		var callbacks 	= []
+		,	errbacks	= []
+		,	promise 	= {	then: then }
+		,	xhr = window
 				? 	(	window.ActiveXObject 
 						? new ActiveXObject("Msxml2.XMLHTTP") 	// IE
 						: new XMLHttpRequest()					// browser
 					)
 				: require(url); // node 
 		if( 'onerror' in xhr )
-			xhr.onerror = errback;
-		xhr.open("GET", url, false);
-		try { xhr.responseType = "msxml-document" } catch (err) { } // Helping IE11
+			xhr.onerror = onError;
 		xhr.onreadystatechange = function ()
 		{
 			if( 4 != xhr.readyState )
@@ -156,13 +161,10 @@
 			}catch( ex )
 				{	errback( ex, url );	}
 		}
+		xhr.open( "GET", url, true );
+		try { xhr.responseType = "msxml-document" } catch (err) { } // Helping IE11
 		xhr.send();
-		// todo mixin promise API
-		
-		var callbacks 	= []
-		,	errbacks	= []
-		,	promise 	= {	then: then };
-		
+
 		function then( onLoad, onError )
 		{	onLoad 	&& callbacks.push(onLoad);
 			onError && errbacks.push(onError);
@@ -190,6 +192,31 @@
 
 		cleanElement(el);
 		el.appendChild(p.transformToFragment(xml, document));
+	}
+		function
+	createXml()
+	{
+		return new DOMParser().parseFromString( '<?xml version="1.0" encoding="UTF-8"?><r/>', "application/xml" );
+	}
+	// todo xml2Object, tests
+		function
+	object2Xml( o, tag, node )
+	{
+		// object2Xml( { aa:[1,2], b:{a:'asd'},c:'qwe'},'root')
+		// returns <root><aa><r>1</r><r>1</r></aa><c>qwe</c></root>
+
+		node = node || mod.createXml().firstChild;
+		var n = createEl(tag);
+		if( o instanceof Array )
+			o.forEach( function( el, i )
+				{	object2Xml( el, 'r', n );	});
+		else if( o instanceof Object )
+			forEachProp( o, function( k, v )
+				{	object2Xml( v, k, n );	});
+		else
+			n.textContent = '' + o;
+		return n;
+		function createEl(k){ var e = mod.createElement( k, node.ownerDocument || node ); node.appendChild(e); return e; }
 	}
 		function 
 	createElement(name, document)
