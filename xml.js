@@ -148,7 +148,7 @@
 		,	errbacks	= []
 		,	promise 	= {	then: then, options: options }
 		,	xhr 		= new XMLHttpRequest(); // new ActiveXObject("Msxml2.XMLHTTP") 	// IE
-		forEachProp( options, function( k, v ){	xhr[k] = v;	});
+		forEachProp( options, function( v, k ){	xhr[k] = v;	});
 		options.method = options.method || "GET";
 		if( 'onerror' in xhr )
 			xhr.onerror = onError;
@@ -171,7 +171,7 @@
 		xhr.open( options.method, url, true );
 
 		xhr.setRequestHeader &&  xhr.setRequestHeader("Accept", "application/xml, text/xml, application/xhtml+xml, text/xsl, text/html, text/plain");
-		xhr.setRequestHeader &&  forEachProp( options.headers ||{}, 'setRequestHeader', xhr );
+		xhr.setRequestHeader &&  forEachProp( options.headers ||{}, function( v, k ){ xhr.setRequestHeader(k,v); });
 
 		try { if( isIE ) xhr.responseType = "msxml-document"; } catch (err) { } // Helping IE11
 		xhr.send();
@@ -222,7 +222,7 @@
 			o.forEach( function( el, i )
 				{	object2Xml( el, 'r', n );	});
 		else if( o instanceof Object )
-			forEachProp( o, function( k, v )
+			forEachProp( o, function( v, k )
 				{	object2Xml( v, k, n );	});
 		else
 			n.textContent = '' + o;
