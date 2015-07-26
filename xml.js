@@ -8,7 +8,7 @@
 }( this, function ()
 {
 	// todo validate JS w/ Lint
-	
+
 	// module:
 	//		lib/AMD/xml
 	// summary:
@@ -17,7 +17,8 @@
 	//		As plugin returns XMLDOMDocument retrieved by XHR
 
 	var XHTML	= "http://www.w3.org/1999/xhtml"
-	,	AFNS	= "http://apifusion.com/ui/vc/1.0";
+	,	AFNS	= "http://apifusion.com/ui/vc/1.0"
+    ,   isIE    = !!window.ActiveXObject;
 
 	var mod =
 	{	load: function load(name, req, onLoad, config) // AMD plugin API
@@ -129,53 +130,68 @@
 	{	this.forEach(function(n,i)
 		{	var c = this._ret[i] = n.ownerDocument.createElementNS(AFNS,name);
 			for( var a in attrs )
-				c.setAttribute(a, attrs[a] );
+				c.setAttribute( a, attrs[a] );
 			n.appendChild( c );
 		}, this);
 		return this;
 	}
 
-		function /*  @returns {Promise<XMLDocument>} The promise that the result will load.*/
-	getXml( url )
+		function /*  @returns { Promise<XMLDocument>, options:{headers:{}, method:'GET',async:true,responseHeaders:{}} }
+					The promise that the result will load. */
+	getXml	(	url
+			,	options /* XHR properties or headers hashmap */
+			)
 	{
-		// todo http headers and other options
+		if(!options )
+			options = {};
 		var callbacks 	= []
 		,	errbacks	= []
-		,	promise 	= {	then: then }
+		,	promise 	= {	then: then, options: options }
 		,	xhr = window
-				? 	(	window.ActiveXObject 
-						? new ActiveXObject("Msxml2.XMLHTTP") 	// IE
-						: new XMLHttpRequest()					// browser
+				? 	(	"function" === typeof XMLHttpRequest
+						? new XMLHttpRequest()											// browser
+						: window.ActiveXObject && new ActiveXObject("Msxml2.XMLHTTP") 	// IE
 					)
-				: require(url); // node 
+				: require(url); // node
+		forEachProp( options, function( k, v ){	xhr[k] = v;	});
+		options.method = options.method || "GET";
 		if( 'onerror' in xhr )
 			xhr.onerror = onError;
 		xhr.onreadystatechange = function ()
 		{
-			if( 4 != xhr.readyState )
+			if(   4 !== xhr.readyState )
 				return;
+			options.responseHeaders = xhr.getAllResponseHeaders();
+            options.requestUrl      = url;
+			if( 200 !== xhr.status )
+				return onError( new Error( xhr.status + " " + xhr.statusText +" @ " + url ), xhr );
+			// todo 300+ redirect
 			try
 			{	if( xhr.responseXML )
-					return onLoad( xhr.responseXML );
-				onLoad( new DOMParser().parseFromString( xhr.responseText, "application/xml" ) );
+					return onLoad( xhr.responseXML, xhr );
+				onLoad( new DOMParser().parseFromString( xhr.responseText, "application/xml" ), xhr );
 			}catch( ex )
-				{	errback( ex, url );	}
+				{	onError( ex, xhr );	}
 		}
-		xhr.open( "GET", url, true );
-		try { xhr.responseType = "msxml-document" } catch (err) { } // Helping IE11
+		xhr.open( options.method, url, true );
+
+		xhr.setRequestHeader &&  xhr.setRequestHeader("Accept", "application/xml, text/xml, application/xhtml+xml, text/xsl, text/html, text/plain");
+		xhr.setRequestHeader &&  forEachProp( options.headers ||{}, 'setRequestHeader', xhr );
+
+		try { if( isIE ) xhr.responseType = "msxml-document"; } catch (err) { } // Helping IE11
 		xhr.send();
 
 		function then( onLoad, onError )
 		{	onLoad 	&& callbacks.push(onLoad);
 			onError && errbacks.push(onError);
 		}
-		function onError(err,a)
-		{	
-			errbacks.forEach( function(cb){ cb(err,a); } );
-		}
-		function onLoad( xml )
+		function onError(err, xhr)
 		{
-			callbacks.forEach( function(cb){ cb(xml); } );
+			errbacks.forEach( function(cb){ cb( err, xhr ); } );
+		}
+		function onLoad( xml, xhr )
+		{
+			callbacks.forEach( function(cb){ cb( xml, xhr ); } );
 		}
 		return promise;
 	}
@@ -191,7 +207,7 @@
 		p.importStylesheet(xsl);
 
 		cleanElement(el);
-		el.appendChild(p.transformToFragment(xml, document));
+		el.appendChild( p.transformToFragment( xml, el.ownerDocument ) );
 	}
 		function
 	createXml()
@@ -218,12 +234,12 @@
 		return n;
 		function createEl(k){ var e = mod.createElement( k, node.ownerDocument || node ); node.appendChild(e); return e; }
 	}
-		function 
+		function
 	createElement(name, document)
 	{
 		return document.createElementNS ? document.createElementNS(XHTML, name) : document.createElement(name);
 	}
-		function 
+		function
 	cleanElement(el)
 	{
 		while( el && el.lastChild)
@@ -233,9 +249,15 @@
 		function
 	forEachProp( o, onProp, scope )
 	{
+		if( !o )
+			return;
 		if( scope )
-			for( var n in o )
-				onProp.call( scope, o[n], n, o );
+			if( 'string' === typeof onProp )
+				for( var n in o )
+					scope[onProp].call( scope, o[n], n, o );
+			else
+				for( var n in o )
+					onProp.call( scope, o[n], n, o );
 		else
 			for( var n in o )
 				onProp( o[n], n, o );
