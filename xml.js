@@ -18,7 +18,7 @@
 
 	var XHTML	= "http://www.w3.org/1999/xhtml"
 	,	AFNS	= "http://apifusion.com/ui/vc/1.0"
-    ,   isIE    = !!window.ActiveXObject;
+    ,   isIE    = (window.ActiveXObject !== undefined);
 
 	var mod =
 	{	load: function load(name, req, onLoad, config) // AMD plugin API
@@ -147,12 +147,7 @@
 		var callbacks 	= []
 		,	errbacks	= []
 		,	promise 	= {	then: then, options: options }
-		,	xhr = window
-				? 	(	"function" === typeof XMLHttpRequest
-						? new XMLHttpRequest()											// browser
-						: window.ActiveXObject && new ActiveXObject("Msxml2.XMLHTTP") 	// IE
-					)
-				: require(url); // node
+		,	xhr 		= new XMLHttpRequest(); // new ActiveXObject("Msxml2.XMLHTTP") 	// IE
 		forEachProp( options, function( k, v ){	xhr[k] = v;	});
 		options.method = options.method || "GET";
 		if( 'onerror' in xhr )
@@ -198,8 +193,8 @@
 		function
 	transform( xml, xsl, el )
 	{
-		if ('undefined' == typeof XSLTProcessor)
-		{	xsl.setProperty("AllowXsltScript", true);
+		if( isIE )
+		{	xsl.setProperty( "AllowXsltScript", true );
 			el.innerHTML = xml.transformNode(xsl);
 			return;
 		}
