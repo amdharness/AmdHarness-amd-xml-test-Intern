@@ -218,7 +218,7 @@
 	{
 		if( !isIE )
 			return 	new DOMParser().parseFromString( DEFAULT_XML, "application/xml" );
-		var doc = new ActiveXObject( "Msxml2.DOMDocument.6.0" )
+		var doc = new ActiveXObject( "Msxml2.DOMDocument.6.0" );
 			doc.loadXML( DEFAULT_XML );
 		return doc;
 	}
