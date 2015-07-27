@@ -18,7 +18,8 @@
 
 	var XHTML	= "http://www.w3.org/1999/xhtml"
 	,	AFNS	= "http://apifusion.com/ui/vc/1.0"
-    ,   isIE    = (window.ActiveXObject !== undefined);
+    ,   isIE    = (window.ActiveXObject !== undefined)
+	,	DEFAULT_XML 	=	'<?xml version="1.0" encoding="UTF-8"?><r/>';
 
 	var mod =
 	{	load: function load(name, req, onLoad, config) // AMD plugin API
@@ -195,19 +196,31 @@
 	{
 		if( isIE )
 		{	xsl.setProperty( "AllowXsltScript", true );
-			el.innerHTML = xml.transformNode(xsl);
-			return;
+			var txt = xml.transformNode(xsl);
+			if( el )
+				el.innerHTML = txt;
+			return txt;
 		}
 		var p = new XSLTProcessor();
 		p.importStylesheet(xsl);
 
-		cleanElement(el);
-		el.appendChild( p.transformToFragment( xml, el.ownerDocument ) );
+		if( el )
+		{
+			cleanElement(el);
+			el.appendChild( p.transformToFragment( xml, el.ownerDocument ) );
+		}else
+		{	var doc = p.transformToDocument(xml);
+			return doc && ( doc.documentElement.outerHTML || doc.documentElement.outerXML );
+		}
 	}
 		function
 	createXml()
 	{
-		return new DOMParser().parseFromString( '<?xml version="1.0" encoding="UTF-8"?><r/>', "application/xml" );
+		if( !isIE )
+			return 	new DOMParser().parseFromString( DEFAULT_XML, "application/xml" );
+		var doc = new ActiveXObject( "Msxml2.DOMDocument.6.0" )
+			doc.loadXML( DEFAULT_XML );
+		return doc;
 	}
 	// todo xml2Object, tests
 		function
@@ -216,7 +229,7 @@
 		// object2Xml( { aa:[1,2], b:{a:'asd'},c:'qwe'},'root')
 		// returns <root><aa><r>1</r><r>1</r></aa><c>qwe</c></root>
 
-		node = node || mod.createXml().firstChild;
+		node = node || mod.createXml().documentElement;
 		var n = createEl(tag);
 		if( o instanceof Array )
 			o.forEach( function( el, i )
@@ -225,14 +238,16 @@
 			forEachProp( o, function( v, k )
 				{	object2Xml( v, k, n );	});
 		else
-			n.textContent = '' + o;
+		{	var t = n.ownerDocument.createTextNode( '' + o );
+			n.appendChild(t);
+		}
 		return n;
 		function createEl(k){ var e = mod.createElement( k, node.ownerDocument || node ); node.appendChild(e); return e; }
 	}
 		function
-	createElement(name, document)
+	createElement( name, document, nsUrl )
 	{
-		return document.createElementNS ? document.createElementNS(XHTML, name) : document.createElement(name);
+		return nsUrl && document.createElementNS ? document.createElementNS( nsUrl, name ) : document.createElement(name);
 	}
 		function
 	cleanElement(el)
