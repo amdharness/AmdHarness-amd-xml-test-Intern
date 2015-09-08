@@ -1,0 +1,4 @@
+AddType application/xml .xml
+AddType application/xml .xsl
+AddType text/text .txt
+
