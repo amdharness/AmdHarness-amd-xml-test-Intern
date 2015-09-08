@@ -1,14 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>xml AMD module</title>
-</head>
-<body>
+= AmdHarness-amd-xml test environment =
+
+AmdHarness-amd-xml test project. While the specific to module tests reside at xml/test folder,
+this project provides independent test environment.
+
+AmdHarness-amd-xml will have another test environment as the part of AmdHarness-app.
+
 <a href="node_modules/intern/client.html?config=intern&initialBaseUrl=/AmdHarness-amd-xml-test-Intern/&suites=lib/AMD/xml/test/test"
         >in-browser TEST</a>
-<fieldset>
-    <legend>XML content-type on server side</legend>
+
+== XML content-type on server side ==
+
     <b>mime type</b> set by server for <b>xml</b> and <b>xsl</b> files does matter for the browser. The right use of
     <b>'Content-Type:application/xml'</b> allows to utilize browser's native parsing capabilities while the content
     is still in downloading progress. The default mime type association in IIS and some other browsers are differ
@@ -18,10 +19,9 @@
     %windir%\system32\inetsrv\appcmd set config /section:staticContent /[fileExtension='.xml',mimeType='application/xml'].mimetype:application/xml
     %windir%\system32\inetsrv\appcmd set config /section:staticContent /[fileExtension='.xsl',mimeType='application/xml'].mimetype:application/xml
 </code></pre>
-</fieldset>
-<h2>Project notes</h2>
-<fieldset>
-    <legend>Git subtree use</legend>
+
+== Project notes ==
+=== Git subtree use ===
 
 <pre><code>
     git remote add AmdHarness-amd-xml https://github.com/amdharness/AmdHarness-amd-xml.git
@@ -32,6 +32,3 @@
     git merge -s ours AmdHarness-amd-xml/master
     git subtree push -P lib/AMD/xml AmdHarness-amd-xml master
 </code></pre>
-</fieldset>
-</body>
-</html>
