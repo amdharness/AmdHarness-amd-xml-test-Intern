@@ -5,10 +5,10 @@ this project provides independent test environment.
 
 AmdHarness-amd-xml will have another test environment as the part of AmdHarness-app.
 
-<a href="node_modules/intern/client.html?config=intern&initialBaseUrl=/AmdHarness-amd-xml-test-Intern/&suites=lib/AMD/xml/test/test"
-        >in-browser TEST</a>
+<b><a href="node_modules/intern/client.html?config=intern&initialBaseUrl=/AmdHarness-amd-xml-test-Intern/&suites=lib/AMD/xml/test/test"
+        >in-browser TEST link</a></b>
 
-== XML content-type on server side ==
+= XML content-type on server side =
 
     <b>mime type</b> set by server for <b>xml</b> and <b>xsl</b> files does matter for the browser. The right use of
     <b>'Content-Type:application/xml'</b> allows to utilize browser's native parsing capabilities while the content
@@ -20,8 +20,8 @@ AmdHarness-amd-xml will have another test environment as the part of AmdHarness-
     %windir%\system32\inetsrv\appcmd set config /section:staticContent /[fileExtension='.xsl',mimeType='application/xml'].mimetype:application/xml
 </code></pre>
 
-== Project notes ==
-=== Git subtree use ===
+= Project notes =
+== Git subtree use ==
 
 <pre><code>
     git remote add AmdHarness-amd-xml https://github.com/amdharness/AmdHarness-amd-xml.git
