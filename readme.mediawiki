@@ -6,7 +6,7 @@ this project provides independent test environment.
 AmdHarness-amd-xml will have another test environment as the part of AmdHarness-app.
 
 <b><a href="node_modules/intern/client.html?config=intern&initialBaseUrl=/AmdHarness-amd-xml-test-Intern/&suites=lib/AMD/xml/test/test"
-        >in-browser TEST link</a></b>
+        >In-browser TEST link</a></b> to be run from web server.
 
 = XML content-type on server side =
 
