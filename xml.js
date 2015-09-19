@@ -4,7 +4,7 @@
 	else if ( typeof exports === 'object' )
 		module.exports = factory();		// Node
 	else
-		root.returnExports = factory();	// browser
+		root.XmlAspect = factory();	// browser
 }( this, function ()
 {
 	// todo validate JS w/ Lint
@@ -23,7 +23,7 @@
 	var mod =
 	{	load: function load(name, req, onLoad, config) // AMD plugin API
 			{
-				getXml( req.toUrl( name ) ).then( onLoad, onLoad );
+				return getXml( req.toUrl( name ) ).then( onLoad, onLoad );
 			}
 	,	getXml		: getXml
 	,	onSetHeader	: function(xhr){}
@@ -181,6 +181,7 @@
 		function then( onLoad, onError )
 		{	onLoad 	&& callbacks.push(onLoad);
 			onError && errbacks.push(onError);
+			return this;
 		}
 		function onError(err, xhr)
 		{
