@@ -47,6 +47,7 @@
 	,	o2xml			: object2Xml // ( o, tag, node )
 	,	createElement 	: createElement
 	,	cleanElement 	: cleanElement
+	,	DEFAULT_XML		: DEFAULT_XML
 	};
 	return mod;
 
@@ -97,7 +98,7 @@
 		nl.createChild = createChild;
 		nl.$ = function(xp)
 		{	var ret = [];
-			this.forEach( function( el, i )
+			this.forEach( function( el )
 			{
 				ret.push.apply( ret, xpath2arr(xp,el) );
 			});
@@ -223,7 +224,7 @@
 		node = node || mod.createXml().documentElement;
 		var n = createEl(tag);
 		if( o instanceof Array )
-			o.forEach( function( el, i )
+			o.forEach( function( el )
 				{	object2Xml( el, 'r', n );	});
 		else if( o instanceof Object )
 			forEachProp( o, function( v, k )
@@ -252,15 +253,16 @@
 	{
 		if( !o )
 			return;
+		var n;
 		if( scope )
 			if( 'string' === typeof onProp )
-				for( var n in o )
+				for( n in o )
 					scope[onProp].call( scope, o[n], n, o );
 			else
-				for( var n in o )
+				for( n in o )
 					onProp.call( scope, o[n], n, o );
 		else
-			for( var n in o )
+			for( n in o )
 				onProp( o[n], n, o );
 	}
 }));
