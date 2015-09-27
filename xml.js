@@ -200,13 +200,13 @@
 		var p = new XSLTProcessor();
 		p.importStylesheet(xsl);
 
-		if( el )
-		{	cleanElement(el);
-			el.appendChild( p.transformToFragment( xml, el.ownerDocument ) );
-			return el;
-		}else
+		if( !el )
 			return p.transformToDocument(xml);
 			// doc && ( doc.documentElement.outerHTML || doc.documentElement.outerXML );
+
+		cleanElement(el);
+		el.appendChild( p.transformToFragment( xml, el.ownerDocument ) );
+		return el;
 	}
 		function
 	createXml()
