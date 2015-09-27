@@ -21,7 +21,7 @@
 	,	DEFAULT_XML 	=	'<?xml version="1.0" encoding="UTF-8"?><r/>';
 
 	var mod =
-	{	load: function load(name, req, onLoad, config) // AMD plugin API
+	{	load: function load(name, req, onLoad /*, config*/ ) // AMD plugin API
 			{
 				return getXml( req.toUrl( name ) ).then( onLoad, onLoad );
 			}
@@ -201,13 +201,12 @@
 		p.importStylesheet(xsl);
 
 		if( el )
-		{
-			cleanElement(el);
+		{	cleanElement(el);
 			el.appendChild( p.transformToFragment( xml, el.ownerDocument ) );
+			return el;
 		}else
-		{	var doc = p.transformToDocument(xml);
-			return doc && ( doc.documentElement.outerHTML || doc.documentElement.outerXML );
-		}
+			return p.transformToDocument(xml);
+			// doc && ( doc.documentElement.outerHTML || doc.documentElement.outerXML );
 	}
 		function
 	createXml()
