@@ -21,6 +21,7 @@ AmdHarness-amd-xml will have another test environment as the part of AmdHarness-
 </code></pre>
 
 = Project notes =
+
 == Git subtree use ==
 
 <pre><code>
