@@ -26,4 +26,6 @@ build/Release
 
 # Dependency directory
 # https://www.npmjs.org/doc/misc/npm-faq.html#should-i-check-my-node_modules-folder-into-git
-node_modules
+
+# default intern does not work, keeping the old one explicitly in project
+# node_modules
