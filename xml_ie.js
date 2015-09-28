@@ -19,7 +19,7 @@ else
 	//		As plugin returns XMLDOMDocument retrieved by XHR
 
 	// todo validate JS w/ Lint
-	if( window.ActiveXObject )
+	if( 'ActiveXObject' in window )
 	{	mod.onSetHeader = function(xhr){ try { xhr.responseType = "msxml-document"; }catch(err){} }; // Helping IE11
 		mod.transform = transform;
 		mod.createXml = createXml;
