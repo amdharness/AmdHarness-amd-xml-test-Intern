@@ -32,4 +32,10 @@ AmdHarness-amd-xml will have another test environment as the part of AmdHarness-
     git subtree pull -P lib/AMD/xml AmdHarness-amd-xml master
     git merge -s ours AmdHarness-amd-xml/master
     git subtree push -P lib/AMD/xml AmdHarness-amd-xml master
+
+    # commit back to remote repo
+    git subtree split -P lib/AMD/xml -b extbranch master
+    git subtree push -P lib/AMD/xml AmdHarness-amd-xml extbranch --rejoin
+    # in github make a pull request out of extbranch and merge it
+
 </code></pre>
