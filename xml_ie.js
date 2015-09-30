@@ -4,11 +4,8 @@
  */
 (function (root, factory)
 {	if( typeof define === 'function' && define.amd )
-	define(["./xml"], factory);			// AMD
-else if ( typeof exports === 'object' )
-	module.exports = factory();		// Node
-else
-	root.returnExports = factory();	// browser
+	define(["./xml"], factory);	// AMD
+else factory( root.XmlAspect );	// browser
 }( this, function( mod )
 {
 	// module:

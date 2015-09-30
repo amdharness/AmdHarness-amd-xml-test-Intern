@@ -1,8 +1,6 @@
-(function (root, factory)
+(function( root, factory )
 {	if( typeof define === 'function' && define.amd )
-		define([], factory);			// AMD
-	else if ( typeof exports === 'object' )
-		module.exports = factory();		// Node
+		define([], factory);		// AMD
 	else
 		root.XmlAspect = factory();	// browser
 }( this, function ()
