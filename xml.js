@@ -1,8 +1,8 @@
 (function( root, factory )
 {	if( typeof define === 'function' && define.amd )
-		define([], factory);		// AMD
+		define([], factory);	// AMD
 	else
-		root.XmlAspect = factory();	// browser
+		XmlAspect = factory();	// browser
 }( this, function ()
 {
 	// todo validate JS w/ Lint
