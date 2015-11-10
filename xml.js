@@ -1,8 +1,8 @@
 (function( root, factory )
 {	if( typeof define === 'function' && define.amd )
-		define([], factory);		// AMD
+		define([], factory);	// AMD
 	else
-		root.XmlAspect = factory();	// browser
+		XmlAspect = factory();	// browser
 }( this, function ()
 {
 	// todo validate JS w/ Lint
@@ -147,52 +147,41 @@
 	{
 		if(!options )
 			options = {};
-		var callbacks 	= []
-		,	errbacks	= []
-		,	promise 	= {	then: then, options: options }
-		,	xhr 		= new XMLHttpRequest(); // new ActiveXObject("Msxml2.XMLHTTP") 	// IE
-		forEachProp( options, function( v, k ){	xhr[k] = v;	});
+
 		options.method = options.method || "GET";
-		if( 'onerror' in xhr )
-			xhr.onerror = onError;
-		xhr.onreadystatechange = function ()
-		{
-			if(   4 !== xhr.readyState )
-				return;
-			options.responseHeaders = xhr.getAllResponseHeaders();
-            options.requestUrl      = url;
-			if( 200 !== xhr.status )
-				return onError( new Error( xhr.status + " " + xhr.statusText +" @ " + url ), xhr );
-			// todo 300+ redirect
-			try
-			{	if( xhr.responseXML )
-					return onLoad( xhr.responseXML, xhr );
-				onLoad( new DOMParser().parseFromString( xhr.responseText, "application/xml" ), xhr );
-			}catch( ex )
-				{	onError( ex, xhr );	}
-		};
-		xhr.open( options.method, url, true );
 
-		xhr.setRequestHeader &&  xhr.setRequestHeader("Accept", "application/xml, text/xml, application/xhtml+xml, text/xsl, text/html, text/plain");
-		xhr.setRequestHeader &&  forEachProp( options.headers ||{}, function( v, k ){ xhr.setRequestHeader(k,v); });
-
-		mod.onSetHeader(xhr);
-		xhr.send();
-
-		function then( onLoad, onError )
-		{	onLoad 	&& callbacks.push(onLoad);
-			onError && errbacks.push(onError);
-			return this;
-		}
-		function onError(err, xhr)
+		return new Promise( function xhrExecutor( resolve, reject )
 		{
-			errbacks.forEach( function(cb){ cb( err, xhr ); } );
-		}
-		function onLoad( xml, xhr )
-		{
-			callbacks.forEach( function(cb){ cb( xml, xhr ); } );
-		}
-		return promise;
+			var xhr 		= new XMLHttpRequest(); // new ActiveXObject("Msxml2.XMLHTTP") 	// IE
+
+			forEachProp( options, function( v, k ){	xhr[k] = v;	});
+
+			if( 'onerror' in xhr )
+				xhr.onerror = reject;
+			xhr.onreadystatechange = function ()
+			{
+				if(   4 !== xhr.readyState )
+					return;
+				options.responseHeaders = xhr.getAllResponseHeaders();
+				options.requestUrl      = url;
+				if( 200 !== xhr.status )
+					return reject( new Error( xhr.status + " " + xhr.statusText +" @ " + url ), xhr );
+				// todo 300+ redirect
+				try
+				{	if( xhr.responseXML )
+						return resolve( xhr.responseXML, xhr );
+					resolve( new DOMParser().parseFromString( xhr.responseText, "application/xml" ), xhr );
+				}catch( ex )
+					{	reject( ex, xhr );	}
+			};
+			xhr.open( options.method, url, true );
+
+			xhr.setRequestHeader &&  xhr.setRequestHeader("Accept", "application/xml, text/xml, application/xhtml+xml, text/xsl, text/html, text/plain");
+			xhr.setRequestHeader &&  forEachProp( options.headers ||{}, function( v, k ){ xhr.setRequestHeader(k,v); });
+
+			mod.onSetHeader(xhr);
+			xhr.send();
+		});
 	}
 		function
 	transform( xml, xsl, el )
